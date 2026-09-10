@@ -1,47 +1,55 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - JobShodho</title>
-    <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/JobShodho.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">JobShodho</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <nav class="topbar navbar navbar-expand">
+        <div class="container-fluid">
+            <button class="btn btn-link text-white d-md-none" id="sidebarToggle" type="button" aria-label="Toggle navigation">
+                <span class="bi">&#9776;</span>
+            </button>
+            <a class="navbar-brand fw-semibold" asp-controller="Dashboard" asp-action="Index">JobShodho</a>
+            <span class="ms-auto text-white-50 small d-none d-sm-inline">AI Job Application Manager</span>
+        </div>
+    </nav>
+
+    <div class="app-shell">
+        <aside class="sidebar" id="appSidebar">
+            <nav class="nav flex-column">
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                <a class="nav-link" asp-controller="Jobs" asp-action="Index">Jobs</a>
+                <a class="nav-link" asp-controller="Import" asp-action="Index">Import Jobs</a>
+                <a class="nav-link" asp-controller="Email" asp-action="Queue">Email Queue</a>
+                <a class="nav-link" asp-controller="Resume" asp-action="Index">Resumes</a>
+                <a class="nav-link" asp-controller="Email" asp-action="History">Email History</a>
+                <a class="nav-link" asp-controller="Settings" asp-action="Index">Settings</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - JobShodho - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

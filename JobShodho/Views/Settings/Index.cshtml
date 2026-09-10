@@ -1,0 +1,116 @@
+@model CandidateProfileViewModel
+@{
+    ViewData["Title"] = "Settings";
+    var openAiConfigured = (bool)ViewData["OpenAiConfigured"]!;
+    var emailConfigured = (bool)ViewData["EmailConfigured"]!;
+}
+
+<h4 class="mb-3">Settings</h4>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">AI Configuration</h6>
+                <p class="mb-1">Status:
+                    @if (openAiConfigured)
+                    {
+                        <span class="badge badge-status-sent">Configured</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-status-failed">Not Configured</span>
+                    }
+                </p>
+                <p class="text-muted small mb-0">Model: @ViewData["OpenAiModel"]</p>
+                <p class="text-muted small mb-0">Set the API key via User Secrets or environment variables — never in appsettings.json.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Email (SMTP) Configuration</h6>
+                <p class="mb-1">Status:
+                    @if (emailConfigured)
+                    {
+                        <span class="badge badge-status-sent">Configured</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-status-failed">Not Configured</span>
+                    }
+                </p>
+                <p class="text-muted small mb-0">Host: @(string.IsNullOrWhiteSpace((string)ViewData["EmailHost"]!) ? "—" : ViewData["EmailHost"])</p>
+                <p class="text-muted small mb-0">Set SMTP credentials via User Secrets or environment variables.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h6 class="section-title">Candidate Profile</h6>
+        <p class="text-muted small">Used to personalize AI-generated emails and interview answers.</p>
+
+        <form asp-action="Index" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Location" class="form-label"></label>
+                    <input asp-for="Location" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="YearsOfExperience" class="form-label"></label>
+                    <input asp-for="YearsOfExperience" type="number" class="form-control" />
+                    <span asp-validation-for="YearsOfExperience" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="ProfessionalSummary" class="form-label"></label>
+                    <textarea asp-for="ProfessionalSummary" rows="3" class="form-control"></textarea>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Skills" class="form-label"></label>
+                    <textarea asp-for="Skills" rows="2" class="form-control" placeholder="Comma separated, e.g. ASP.NET Core, C#, SQL Server"></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="LinkedInUrl" class="form-label"></label>
+                    <input asp-for="LinkedInUrl" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="GitHubUrl" class="form-label"></label>
+                    <input asp-for="GitHubUrl" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PortfolioUrl" class="form-label"></label>
+                    <input asp-for="PortfolioUrl" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="EmailSignature" class="form-label"></label>
+                    <textarea asp-for="EmailSignature" rows="3" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Save Settings</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

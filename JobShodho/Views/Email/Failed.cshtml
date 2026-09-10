@@ -1,0 +1,50 @@
+@model List<JobApplication>
+@{
+    ViewData["Title"] = "Failed Emails";
+}
+
+<h4 class="mb-3">Failed Emails</h4>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Email</th>
+                        <th>Error</th>
+                        <th>Last Attempt</th>
+                        <th>Attempts</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var job in Model)
+                    {
+                        <tr>
+                            <td>@job.CompanyName</td>
+                            <td>@job.JobTitle</td>
+                            <td>@job.RecipientEmail</td>
+                            <td class="text-danger small">@job.LastErrorMessage</td>
+                            <td>@(job.LastEmailAttemptAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</td>
+                            <td>@job.EmailAttemptCount</td>
+                            <td class="text-nowrap">
+                                <form asp-action="Retry" asp-route-id="@job.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Retry</button>
+                                </form>
+                                <a asp-action="Review" asp-route-id="@job.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">No failed emails.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -361,3 +361,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# JobShodho: user-uploaded resumes and AI-generated files (keep folder structure via .gitkeep)
+JobShodho/wwwroot/uploads/resumes/*
+!JobShodho/wwwroot/uploads/resumes/.gitkeep
+JobShodho/wwwroot/uploads/generated/*
+!JobShodho/wwwroot/uploads/generated/.gitkeep
+JobShodho/wwwroot/uploads/interview/*
+!JobShodho/wwwroot/uploads/interview/.gitkeep

@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="JobShodho.Tests/JobShodho.Tests.csproj" />
   <Project Path="JobShodho/JobShodho.csproj" />
 </Solution>

@@ -1,0 +1,91 @@
+@model ImportResultViewModel
+@{
+    ViewData["Title"] = "Import Jobs";
+}
+
+<h4 class="mb-3">Import Jobs</h4>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Upload Excel File</h6>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <form asp-controller="Import" asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Excel File (.xlsx)</label>
+                        <input type="file" name="file" class="form-control" accept=".xlsx" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload &amp; Import</button>
+                </form>
+
+                <hr />
+                <h6 class="fw-semibold">Expected Columns</h6>
+                <p class="text-muted small mb-1">CompanyName, JobTitle, RecipientEmail, JobDescription, JobUrl, Location, Source</p>
+                <p class="text-muted small mb-0">Rows missing required data, invalid emails, or duplicates of existing jobs are skipped automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        @if (Model.TotalRows > 0 || Model.Errors.Count > 0)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Import Results</h6>
+                    <div class="row g-2 mb-3 text-center">
+                        <div class="col-3">
+                            <div class="stat-card"><div class="stat-value">@Model.TotalRows</div><div class="stat-label">Total Rows</div></div>
+                        </div>
+                        <div class="col-3">
+                            <div class="stat-card"><div class="stat-value text-success">@Model.ImportedCount</div><div class="stat-label">Imported</div></div>
+                        </div>
+                        <div class="col-3">
+                            <div class="stat-card"><div class="stat-value text-warning">@Model.DuplicateCount</div><div class="stat-label">Duplicates</div></div>
+                        </div>
+                        <div class="col-3">
+                            <div class="stat-card"><div class="stat-value text-danger">@Model.InvalidCount</div><div class="stat-label">Invalid</div></div>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Empty rows skipped: @Model.SkippedEmptyCount</p>
+
+                    @if (Model.Errors.Count > 0)
+                    {
+                        <h6 class="fw-semibold">Details</h6>
+                        <ul class="small">
+                            @foreach (var error in Model.Errors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                    }
+
+                    @if (Model.ImportedCount > 0)
+                    {
+                        <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-primary mt-2">View Imported Jobs</a>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-body text-muted">
+                    Upload an Excel file to see import results here.
+                </div>
+            </div>
+        }
+    </div>
+</div>

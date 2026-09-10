@@ -1,0 +1,10 @@
+@model EmailStatus
+@{
+    var cssClass = "badge-status-" + Model.ToString().ToLowerInvariant();
+    var label = Model switch
+    {
+        EmailStatus.ReadyForReview => "Ready for Review",
+        _ => Model.ToString()
+    };
+}
+<span class="badge @cssClass">@label</span>

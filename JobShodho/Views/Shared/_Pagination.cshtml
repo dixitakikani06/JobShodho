@@ -1,0 +1,25 @@
+@model PagedResult<JobApplication>
+@{
+    var routeData = new Dictionary<string, string>();
+    foreach (var kv in Context.Request.Query)
+    {
+        if (!string.Equals(kv.Key, "page", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(kv.Value))
+        {
+            routeData[kv.Key] = kv.Value.ToString();
+        }
+    }
+}
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination pagination-sm">
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                var rd = new Dictionary<string, string>(routeData) { ["page"] = p.ToString() };
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" asp-all-route-data="rd">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

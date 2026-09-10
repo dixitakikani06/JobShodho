@@ -1,0 +1,100 @@
+@model JobListViewModel
+@{
+    ViewData["Title"] = "Jobs";
+    var statuses = Enum.GetValues<EmailStatus>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Jobs</h4>
+    <a asp-controller="Jobs" asp-action="Create" class="btn btn-primary btn-sm">Add Job</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Status</label>
+                <select name="Status" class="form-select form-select-sm">
+                    <option value="">All</option>
+                    @foreach (var s in statuses)
+                    {
+                        <option value="@((int)s)" selected="@(Model.Filter.Status == s)">@s</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Company</label>
+                <input type="text" name="Company" value="@Model.Filter.Company" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Job Title</label>
+                <input type="text" name="JobTitle" value="@Model.Filter.JobTitle" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">From</label>
+                <input type="date" name="FromDate" value="@Model.Filter.FromDate?.ToString("yyyy-MM-dd")" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">To</label>
+                <input type="date" name="ToDate" value="@Model.Filter.ToDate?.ToString("yyyy-MM-dd")" class="form-control form-control-sm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1">Sent?</label>
+                <select name="IsEmailSent" class="form-select form-select-sm">
+                    <option value="">Any</option>
+                    <option value="true" selected="@(Model.Filter.IsEmailSent == true)">Sent</option>
+                    <option value="false" selected="@(Model.Filter.IsEmailSent == false)">Not Sent</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Company</th>
+                        <th>Position</th>
+                        <th>Recipient</th>
+                        <th>Resume</th>
+                        <th>Email Status</th>
+                        <th>Sent At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var job in Model.Results.Items)
+                    {
+                        <tr>
+                            <td>@job.Id</td>
+                            <td>@job.CompanyName</td>
+                            <td>@job.JobTitle</td>
+                            <td>@job.RecipientEmail</td>
+                            <td>@(job.SelectedResume?.Name ?? "—")</td>
+                            <td><partial name="_StatusBadge" model="job.EmailStatus" /></td>
+                            <td>@(job.SentAt?.ToLocalTime().ToString("dd MMM yyyy HH:mm") ?? "—")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                <a asp-controller="Email" asp-action="Review" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary">Review</a>
+                                <a asp-action="Edit" asp-route-id="@job.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (Model.Results.Items.Count == 0)
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4">No jobs found.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pagination" model="Model.Results" />
+    </div>
+</div>

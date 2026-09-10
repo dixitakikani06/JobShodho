@@ -1,0 +1,52 @@
+@model ReviewViewModel
+@{
+    ViewData["Title"] = "Interview Preparation";
+    var job = Model.Job;
+    var content = Model.Interview!;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h4 class="mb-0">Interview Preparation</h4>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Print</button>
+        <form asp-controller="Interview" asp-action="GeneratePdf" asp-route-jobId="@job.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Generate PDF</button>
+        </form>
+        @if (!string.IsNullOrWhiteSpace(job.InterviewContentPath))
+        {
+            <a asp-controller="Interview" asp-action="DownloadPdf" asp-route-jobId="@job.Id" class="btn btn-outline-secondary btn-sm">Download PDF</a>
+        }
+        <form asp-controller="Email" asp-action="GenerateInterview" asp-route-id="@job.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Regenerate</button>
+        </form>
+        <a asp-controller="Email" asp-action="Review" asp-route-id="@job.Id" class="btn btn-outline-secondary btn-sm">Back to Review</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="mb-1">Interview Preparation</h3>
+        <p class="text-muted">Company: @content.Company &middot; Position: @content.JobTitle</p>
+        <hr />
+
+        @{ var index = 1; }
+        @foreach (var qa in content.Questions)
+        {
+            <div class="mb-4">
+                <h6 class="fw-semibold">Question @index</h6>
+                <p>@qa.Question</p>
+                <h6 class="fw-semibold text-muted">Answer</h6>
+                <p style="white-space: pre-wrap;">@qa.Answer</p>
+            </div>
+            index++;
+        }
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .no-print, .sidebar, .topbar { display: none !important; }
+        .content { padding: 0 !important; }
+        .app-shell { display: block !important; }
+    }
+</style>

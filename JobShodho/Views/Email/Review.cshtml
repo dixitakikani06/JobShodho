@@ -1,0 +1,137 @@
+@model ReviewViewModel
+@{
+    ViewData["Title"] = "Review Application";
+    var job = Model.Job;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h4 class="mb-1">Review Application</h4>
+        <div class="text-muted">@job.CompanyName &middot; @job.JobTitle</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <partial name="_StatusBadge" model="job.EmailStatus" />
+        <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.Id" class="btn btn-sm btn-outline-secondary">Back to Job</a>
+    </div>
+</div>
+
+<dl class="row mb-4">
+    <dt class="col-sm-1">Company</dt><dd class="col-sm-3">@job.CompanyName</dd>
+    <dt class="col-sm-1">Position</dt><dd class="col-sm-3">@job.JobTitle</dd>
+    <dt class="col-sm-1">Recipient</dt><dd class="col-sm-3">@job.RecipientEmail</dd>
+</dl>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h6 class="section-title">Job Description</h6>
+        <p style="white-space: pre-wrap;" class="mb-0">@job.JobDescription</p>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center section-title">
+            <span>AI Generated Email</span>
+            <div class="d-flex gap-2">
+                <form asp-controller="Email" asp-action="GenerateEmail" asp-route-id="@job.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">@(string.IsNullOrWhiteSpace(job.EmailSubject) ? "Generate" : "Regenerate")</button>
+                </form>
+                <form asp-controller="Email" asp-action="GenerateAll" asp-route-id="@job.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-primary">Generate All (Email + Resume + Q&amp;A)</button>
+                </form>
+            </div>
+        </div>
+
+        <form asp-controller="Email" asp-action="SaveDraft" asp-route-id="@job.Id" method="post">
+            <div class="mb-3">
+                <label class="form-label">Subject</label>
+                <input type="text" name="emailSubject" value="@job.EmailSubject" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Body</label>
+                <textarea name="emailBody" rows="12" class="form-control">@job.EmailBody</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center section-title">
+            <span>Selected Resume</span>
+            <form asp-controller="Email" asp-action="AiSelectResume" asp-route-id="@job.Id" method="post">
+                <button type="submit" class="btn btn-sm btn-outline-primary">AI Select Resume</button>
+            </form>
+        </div>
+
+        @if (job.SelectedResume is not null)
+        {
+            <p class="mb-1"><strong>@job.SelectedResume.Name</strong> (@job.SelectedResume.OriginalFileName)</p>
+            @if (job.ResumeSelectionScore.HasValue)
+            {
+                <p class="text-muted small mb-1">AI match score: @job.ResumeSelectionScore / 100</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(job.ResumeSelectionReason))
+            {
+                <p class="text-muted small mb-2">@job.ResumeSelectionReason</p>
+            }
+            <a asp-controller="Resume" asp-action="Download" asp-route-id="@job.SelectedResume.Id" class="btn btn-sm btn-outline-secondary">Download Resume</a>
+        }
+        else
+        {
+            <p class="text-muted">No resume selected yet.</p>
+        }
+
+        <form asp-controller="Email" asp-action="ChangeResume" asp-route-id="@job.Id" method="post" class="mt-3 d-flex gap-2">
+            <select name="resumeId" class="form-select form-select-sm w-auto">
+                @foreach (var resume in Model.AvailableResumes)
+                {
+                    <option value="@resume.Id" selected="@(resume.Id == job.SelectedResumeId)">@resume.Name</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Change Resume</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center section-title">
+            <span>Interview Preparation</span>
+            <form asp-controller="Email" asp-action="GenerateInterview" asp-route-id="@job.Id" method="post">
+                <button type="submit" class="btn btn-sm btn-outline-primary">@(Model.Interview is null ? "Generate" : "Regenerate")</button>
+            </form>
+        </div>
+
+        @if (Model.Interview is not null && Model.Interview.Questions.Count > 0)
+        {
+            <p class="text-muted small">@Model.Interview.Questions.Count questions generated.</p>
+            <a asp-controller="Interview" asp-action="View" asp-route-jobId="@job.Id" class="btn btn-sm btn-outline-secondary">View Full Q&amp;A</a>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No interview questions generated yet.</p>
+        }
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="form-check form-switch">
+            <form asp-controller="Jobs" asp-action="SetReviewed" asp-route-id="@job.Id" method="post" id="reviewForm">
+                <input type="hidden" name="isReviewed" value="@(!job.IsReviewed)" />
+                <input class="form-check-input" type="checkbox" role="switch" id="isReviewedToggle" checked="@job.IsReviewed" onchange="document.getElementById('reviewForm').submit()" />
+                <label class="form-check-label" for="isReviewedToggle">I have reviewed this application (company, recipient, subject, body, resume)</label>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-4">
+    <form asp-controller="Email" asp-action="SendSingle" asp-route-id="@job.Id" method="post" onsubmit="return confirm('Send this email now?');">
+        <button type="submit" class="btn btn-success" @(job.IsEmailSent ? "disabled" : "")>
+            @(job.IsEmailSent ? "Already Sent" : "Send Email")
+        </button>
+    </form>
+</div>

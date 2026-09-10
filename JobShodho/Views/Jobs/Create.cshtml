@@ -1,0 +1,58 @@
+@model JobEditViewModel
+@{
+    ViewData["Title"] = "Add Job";
+}
+
+<h4 class="mb-3">Add Job</h4>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="CompanyName" class="form-label"></label>
+                    <input asp-for="CompanyName" class="form-control" />
+                    <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="JobTitle" class="form-label"></label>
+                    <input asp-for="JobTitle" class="form-control" />
+                    <span asp-validation-for="JobTitle" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="RecipientEmail" class="form-label"></label>
+                    <input asp-for="RecipientEmail" class="form-control" />
+                    <span asp-validation-for="RecipientEmail" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label"></label>
+                    <input asp-for="Location" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="JobUrl" class="form-label"></label>
+                    <input asp-for="JobUrl" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Source" class="form-label"></label>
+                    <input asp-for="Source" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="JobDescription" class="form-label"></label>
+                    <textarea asp-for="JobDescription" class="form-control" rows="8"></textarea>
+                    <span asp-validation-for="JobDescription" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Create Job</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

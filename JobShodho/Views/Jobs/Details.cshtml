@@ -1,0 +1,123 @@
+@model JobApplication
+@{
+    ViewData["Title"] = $"{Model.CompanyName} - {Model.JobTitle}";
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h4 class="mb-1">@Model.JobTitle</h4>
+        <div class="text-muted">@Model.CompanyName</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <partial name="_StatusBadge" model="Model.EmailStatus" />
+        <a asp-controller="Email" asp-action="Review" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">Review / Generate AI</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Back to Jobs</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="section-title">Company Information</h6>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Company</dt><dd class="col-sm-9">@Model.CompanyName</dd>
+                    <dt class="col-sm-3">Job Title</dt><dd class="col-sm-9">@Model.JobTitle</dd>
+                    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.RecipientEmail</dd>
+                    <dt class="col-sm-3">Location</dt><dd class="col-sm-9">@(Model.Location ?? "—")</dd>
+                    <dt class="col-sm-3">Job URL</dt>
+                    <dd class="col-sm-9">
+                        @if (!string.IsNullOrWhiteSpace(Model.JobUrl))
+                        {
+                            <a href="@Model.JobUrl" target="_blank" rel="noopener">@Model.JobUrl</a>
+                        }
+                        else
+                        {
+                            <text>—</text>
+                        }
+                    </dd>
+                    <dt class="col-sm-3">Source</dt><dd class="col-sm-9">@(Model.Source ?? "—")</dd>
+                    <dt class="col-sm-3">Imported</dt><dd class="col-sm-9">@Model.ImportedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="section-title">Job Description</h6>
+                <p class="mb-0" style="white-space: pre-wrap;">@Model.JobDescription</p>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="section-title">AI Generated Email</h6>
+                @if (string.IsNullOrWhiteSpace(Model.EmailSubject) && string.IsNullOrWhiteSpace(Model.EmailBody))
+                {
+                    <p class="text-muted mb-0">No email generated yet. AI generation is available from the Review page (coming in a later phase).</p>
+                }
+                else
+                {
+                    <p class="fw-semibold mb-1">Subject</p>
+                    <p>@Model.EmailSubject</p>
+                    <p class="fw-semibold mb-1">Body</p>
+                    <p style="white-space: pre-wrap;">@Model.EmailBody</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="section-title">Interview Preparation</h6>
+                <p class="text-muted mb-0">Interview Q&amp;A generation is available in a later phase.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="section-title">Selected Resume</h6>
+                @if (Model.SelectedResume is not null)
+                {
+                    <p class="mb-1">@Model.SelectedResume.Name</p>
+                    <p class="text-muted small mb-0">@Model.SelectedResume.OriginalFileName</p>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No resume selected yet.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="section-title">Sending Status</h6>
+                <dl class="row mb-0 small">
+                    <dt class="col-6">Reviewed</dt>
+                    <dd class="col-6">@(Model.IsReviewed ? "Yes" : "No")</dd>
+                    <dt class="col-6">Attempts</dt>
+                    <dd class="col-6">@Model.EmailAttemptCount</dd>
+                    <dt class="col-6">Last Attempt</dt>
+                    <dd class="col-6">@(Model.LastEmailAttemptAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</dd>
+                    <dt class="col-6">Sent At</dt>
+                    <dd class="col-6">@(Model.SentAt?.ToLocalTime().ToString("dd MMM HH:mm") ?? "—")</dd>
+                </dl>
+                @if (!string.IsNullOrWhiteSpace(Model.LastErrorMessage))
+                {
+                    <div class="alert alert-danger small mt-2 mb-0">@Model.LastErrorMessage</div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Danger Zone</h6>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Delete this job application?');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Delete Job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+@model List<JobApplication>
+@{
+    ViewData["Title"] = "Email Queue";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-1">Email Queue</h4>
+        <div class="text-muted small">Jobs marked Ready for Review that have not been sent yet.</div>
+    </div>
+    <form asp-action="SendNextBatch" method="post" onsubmit="return confirm('Send the next 10 reviewed emails?');">
+        <button type="submit" class="btn btn-primary" @(Model.Count == 0 ? "disabled" : "")>Send Next 10</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Recipient</th>
+                        <th>Resume</th>
+                        <th>Reviewed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var job in Model)
+                    {
+                        <tr>
+                            <td>@job.CompanyName</td>
+                            <td>@job.JobTitle</td>
+                            <td>@job.RecipientEmail</td>
+                            <td>@(job.SelectedResume?.Name ?? "—")</td>
+                            <td>@(job.IsReviewed ? "Yes" : "No")</td>
+                            <td>
+                                <a asp-action="Review" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary">Review</a>
+                            </td>
+                        </tr>
+                    }
+                    @if (Model.Count == 0)
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-4">Nothing waiting to be sent. Generate and review jobs first.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
