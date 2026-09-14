@@ -14,5 +14,8 @@ public class EmailOptions
 
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(Host) &&
+        Port > 0 &&
+        !string.IsNullOrWhiteSpace(Username) &&
+        !string.IsNullOrWhiteSpace(Password) &&
         !string.IsNullOrWhiteSpace(FromEmail);
 }

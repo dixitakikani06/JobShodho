@@ -25,7 +25,7 @@ public class EmailService : IEmailService
     {
         if (!_emailOptions.IsConfigured)
         {
-            return new EmailSendResult(false, null, "Email is not configured. Please set SMTP settings before sending.");
+            return new EmailSendResult(false, null, "Email is not configured. Set Email:Host, Port, Username, Password, and FromEmail before sending.");
         }
 
         if (string.IsNullOrWhiteSpace(attachmentPath))
@@ -61,16 +61,19 @@ public class EmailService : IEmailService
             var socketOptions = _emailOptions.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto;
             await client.ConnectAsync(_emailOptions.Host, _emailOptions.Port, socketOptions, cancellationToken);
 
-            if (!string.IsNullOrWhiteSpace(_emailOptions.Username))
-            {
-                await client.AuthenticateAsync(_emailOptions.Username, _emailOptions.Password, cancellationToken);
-            }
+            var smtpPassword = new string(_emailOptions.Password.Where(character => !char.IsWhiteSpace(character)).ToArray());
+            await client.AuthenticateAsync(_emailOptions.Username, smtpPassword, cancellationToken);
 
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
 
             _logger.LogInformation("Email sent to {Recipient} with subject '{Subject}'", recipient, subject);
             return new EmailSendResult(true, message.MessageId, null);
+        }
+        catch (MailKit.Security.AuthenticationException ex)
+        {
+            _logger.LogError(ex, "SMTP authentication failed for {Username}", _emailOptions.Username);
+            return new EmailSendResult(false, null, "Gmail rejected the SMTP credentials. Turn on 2-Step Verification, create a Google App Password, and use that 16-character app password as Email:Password. Do not use your normal Gmail password.");
         }
         catch (Exception ex)
         {
