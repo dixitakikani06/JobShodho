@@ -7,11 +7,13 @@ namespace JobShodho.Controllers;
 public class ImportController : Controller
 {
     private readonly IExcelImportService _excelImportService;
+    private readonly IAiService _aiService;
     private readonly ILogger<ImportController> _logger;
 
-    public ImportController(IExcelImportService excelImportService, ILogger<ImportController> logger)
+    public ImportController(IExcelImportService excelImportService, IAiService aiService, ILogger<ImportController> logger)
     {
         _excelImportService = excelImportService;
+        _aiService = aiService;
         _logger = logger;
     }
 
@@ -44,5 +46,23 @@ public class ImportController : Controller
             result.Errors.Add("Invalid Excel format. Unable to process the file.");
             return View("Index", result);
         }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateWithAi(int count = 10, string? focusArea = null, CancellationToken cancellationToken = default)
+    {
+        var (success, errorMessage, jobs) = await _aiService.GenerateJobListingsAsync(count, focusArea, cancellationToken);
+        if (!success || jobs is null || jobs.Count == 0)
+        {
+            TempData["ErrorMessage"] = errorMessage ?? "Unable to generate job listings.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _logger.LogInformation("AI generated {Count} sample job listings (not saved to database)", jobs.Count);
+
+        var bytes = _excelImportService.BuildJobListingsWorkbook(jobs);
+        var fileName = $"ai-generated-jobs-{DateTime.UtcNow:yyyyMMdd-HHmmss}.xlsx";
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 }

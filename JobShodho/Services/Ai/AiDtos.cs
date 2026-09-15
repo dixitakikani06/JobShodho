@@ -44,4 +44,34 @@ public class InterviewGenerationResponse
     public List<InterviewQuestionItem> Questions { get; set; } = new();
 }
 
+public class JobListingItem
+{
+    [JsonPropertyName("companyName")]
+    public string CompanyName { get; set; } = string.Empty;
+
+    [JsonPropertyName("jobTitle")]
+    public string JobTitle { get; set; } = string.Empty;
+
+    [JsonPropertyName("recipientEmail")]
+    public string RecipientEmail { get; set; } = string.Empty;
+
+    [JsonPropertyName("jobDescription")]
+    public string JobDescription { get; set; } = string.Empty;
+
+    [JsonPropertyName("jobUrl")]
+    public string? JobUrl { get; set; }
+
+    [JsonPropertyName("location")]
+    public string? Location { get; set; }
+
+    [JsonPropertyName("source")]
+    public string? Source { get; set; }
+}
+
+public class JobListingGenerationResponse
+{
+    [JsonPropertyName("jobs")]
+    public List<JobListingItem> Jobs { get; set; } = new();
+}
+
 public record AiActionResult(bool Success, string? ErrorMessage);

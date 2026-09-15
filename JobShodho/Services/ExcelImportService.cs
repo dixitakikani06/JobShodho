@@ -2,6 +2,7 @@ using ClosedXML.Excel;
 using JobShodho.Data;
 using JobShodho.Models;
 using JobShodho.Models.Enums;
+using JobShodho.Services.Ai;
 using JobShodho.Services.Interfaces;
 using JobShodho.Services.Validation;
 using JobShodho.ViewModels;
@@ -161,6 +162,36 @@ public class ExcelImportService : IExcelImportService
             fileName, result.ImportedCount, result.DuplicateCount, result.InvalidCount, result.SkippedEmptyCount);
 
         return result;
+    }
+
+    public byte[] BuildJobListingsWorkbook(IEnumerable<JobListingItem> jobs)
+    {
+        using var workbook = new XLWorkbook();
+        var worksheet = workbook.Worksheets.Add("Jobs");
+
+        for (var i = 0; i < RequiredHeaders.Length; i++)
+        {
+            worksheet.Cell(1, i + 1).Value = RequiredHeaders[i];
+        }
+
+        var row = 2;
+        foreach (var job in jobs)
+        {
+            worksheet.Cell(row, 1).Value = job.CompanyName;
+            worksheet.Cell(row, 2).Value = job.JobTitle;
+            worksheet.Cell(row, 3).Value = job.RecipientEmail;
+            worksheet.Cell(row, 4).Value = job.JobDescription;
+            worksheet.Cell(row, 5).Value = job.JobUrl ?? string.Empty;
+            worksheet.Cell(row, 6).Value = job.Location ?? string.Empty;
+            worksheet.Cell(row, 7).Value = job.Source ?? string.Empty;
+            row++;
+        }
+
+        worksheet.Columns().AdjustToContents();
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        return stream.ToArray();
     }
 
     private XLWorkbook? OpenWorkbook(Stream fileStream, ImportResultViewModel result)

@@ -5,9 +5,9 @@
 
 <h4 class="mb-3">Import Jobs</h4>
 
-<div class="row g-3">
-    <div class="col-lg-5">
-        <div class="card">
+<div class="row g-3 mb-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
             <div class="card-body">
                 <h6 class="section-title">Upload Excel File</h6>
 
@@ -39,7 +39,37 @@
         </div>
     </div>
 
-    <div class="col-lg-7">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="section-title">Generate Sample Jobs with AI</h6>
+                <p class="text-muted small">
+                    AI drafts example job postings in the exact format above and downloads them as an
+                    .xlsx file. <strong>Nothing is saved to the database</strong> &mdash; review and edit
+                    the file, especially recipient emails (they're best-guess placeholders), then upload
+                    it above when you're ready.
+                </p>
+
+                <form asp-controller="Import" asp-action="GenerateWithAi" method="post">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small mb-1">How many?</label>
+                            <input type="number" name="count" value="10" min="1" max="25" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small mb-1">Focus area (optional)</label>
+                            <input type="text" name="focusArea" placeholder="e.g. .NET Developer" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-sm mt-3">Generate &amp; Download Excel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12">
         @if (Model.TotalRows > 0 || Model.Errors.Count > 0)
         {
             <div class="card">

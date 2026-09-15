@@ -238,6 +238,38 @@ public class AiService : IAiService
         return new AiActionResult(true, null);
     }
 
+    public async Task<(bool Success, string? ErrorMessage, List<JobListingItem>? Jobs)> GenerateJobListingsAsync(int count, string? focusArea, CancellationToken cancellationToken = default)
+    {
+        if (!_openAiOptions.IsConfigured)
+        {
+            return (false, "OpenAI is not configured. Please set an API key (Settings or User Secrets) before generating content.", null);
+        }
+
+        var clampedCount = Math.Clamp(count, 1, 25);
+        var (system, user) = PromptBuilder.BuildJobListingsPrompt(clampedCount, focusArea, _candidateOptions.TechnologyBackground);
+        var (raw, error) = await CallOpenAiAsync(system, user, cancellationToken);
+        if (error is not null)
+        {
+            _logger.LogWarning("Job listing generation failed: {Error}", error);
+            return (false, error, null);
+        }
+
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<JobListingGenerationResponse>(raw!, JsonOptions);
+            if (parsed is null || parsed.Jobs.Count == 0)
+            {
+                throw new JsonException("AI response did not contain any job listings.");
+            }
+            return (true, null, parsed.Jobs);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse AI job-listing response");
+            return (false, "Unable to generate job listings. Please try again.", null);
+        }
+    }
+
     private async Task<(string? Raw, string? Error)> CallOpenAiAsync(string systemPrompt, string userPrompt, CancellationToken cancellationToken)
     {
         try

@@ -104,6 +104,34 @@ public static class PromptBuilder
         return (system, sb.ToString());
     }
 
+    public static (string System, string User) BuildJobListingsPrompt(int count, string? focusArea, string technologyBackground)
+    {
+        const string system = """
+            You generate realistic EXAMPLE job postings for a developer to practice an application
+            workflow with. These are plausible, illustrative postings in the style of what appears on
+            job portals (LinkedIn, Naukri, Indeed) for the given technology background - they are not
+            verified, currently-open listings at real companies, and recipient email addresses are
+            best-guess placeholders (e.g. careers@ or hr@ at a plausible-looking company domain) that
+            the user MUST verify before sending any real application. Do not fabricate a real person's
+            name. Vary company names, job titles, locations and sources across the list. Return ONLY a
+            JSON object of the exact shape {"jobs": [{"companyName": "...", "jobTitle": "...",
+            "recipientEmail": "...", "jobDescription": "...", "jobUrl": "...", "location": "...",
+            "source": "..."}]} with no extra commentary. jobUrl, location and source may be empty
+            strings if not applicable.
+            """;
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"Generate {count} example job postings.");
+        sb.AppendLine($"Technology background to target: {technologyBackground}");
+        if (!string.IsNullOrWhiteSpace(focusArea))
+        {
+            sb.AppendLine($"Focus area / role keyword: {focusArea}");
+        }
+        sb.AppendLine("Each jobDescription should be 2-4 sentences, realistic and specific to the role.");
+
+        return (system, sb.ToString());
+    }
+
     private static string Truncate(string? text, int maxLength)
     {
         if (string.IsNullOrEmpty(text))
